@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Simple Chat - Using Websocket</title>
+<style type="text/css">
+p {
+    margin: 0;
+}
+ 
+#messageArea {
+    width: 500px;
+    height: 200px;
+    overflow: auto;
+    border: 1px solid black;
+}
+ 
+#iptMessage {
+    width: 240px;
+}
+</style>
+</head>
+<body>
+    <h2>Space to Chat</h2>
+    <div id="messageArea"></div>
+    <div>
+        <form onsubmit="return false;">
+            <input id="iptMessage" name="message" />
+            <button id="btnSend">send</button>
+        </form>
+    </div>
+ 
+    <script type="text/javascript">
+        function log(msg) {
+            if (typeof console !== "undefined")
+                console.log(msg);
+        }
+         
+        if ('WebSocket' in window) {
+            var websocket = new WebSocket("ws://localhost:8080/api-jersey/chat");
+        } else if ('MozWebSocket' in window) {
+            var websocket = new WebSocket("ws://localhost:8080/api-jersey/chat");
+        } else {
+            alert("Browser not support WebSocket");
+        }
+ 
+        if (websocket != undefined) {
+            websocket.onopen = function() {
+                log("Conected !!!");
+            };
+ 
+            websocket.onclose = function() {                
+                alert("desconnected");
+            };
+ 
+            websocket.onerror = function() {
+                log("an error has occurred");
+            };
+ 
+            websocket.onmessage = function(data) {                
+                var message = "<p>" + data.data + "</p>";
+                var messageArea = document.getElementById("messageArea");
+                messageArea.innerHTML += message;
+                messageArea.scrollTop = messageArea.scrollHeight;
+            };
+ 
+            function sendMessage(msg) {
+                log("Enviar mensagem (" + msg + ")");
+                websocket.send(msg);
+            }
+ 
+            document.getElementById("btnSend").onclick = function() {
+                var msg = document.getElementById("iptMessage").value;
+                sendMessage(msg);
+                return false;
+            };
+        }
+    </script>
+</body>
+</html>
